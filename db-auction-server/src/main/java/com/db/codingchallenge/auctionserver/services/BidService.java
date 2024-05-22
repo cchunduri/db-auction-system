@@ -40,26 +40,7 @@ public class BidService {
         Auction auction = auctionService.getAuction(bidsDto.auctionId())
             .orElseThrow(() -> new AuctionNotFound("Auction not found"));
 
-        if (!auction.getProduct().getProductId().equals(bidsDto.productId())) {
-            throw new BidNotFound("Product not found");
-        }
-
-        if (auction.getMinPrice()>= bidsDto.bidAmount()) {
-            throw new AuctionShouldHaveHigherBidAmount("Auction should have higher bid");
-        }
-
-        if (auction.getStartDate().isAfter(Instant.now())) {
-            throw new BidNotPossible("Bidding not possible since auction has not started yet");
-        }
-
-        if (auction.getEndDate().isBefore(Instant.now())) {
-            throw new BidNotPossible("Bidding not possible since auction has ended");
-        }
-
-        var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
-        if (Boolean.FALSE.equals(isBidderExists)) {
-            throw new BidNotFound("Bidder not found");
-        }
+        validateBid(bidsDto, auction);
 
         var bid = toEntity(bidsDto, auction);
         return toBidsDto(bidRepository.save(bid));
@@ -85,5 +66,32 @@ public class BidService {
             .bidId(bidsDto.bidderId())
             .bidderId(bidsDto.bidderId())
             .build();
+    }
+
+    private void validateBid(BidsDto bidsDto, Auction auction) {
+        if (!auction.getProduct().getProductId().equals(bidsDto.productId())) {
+            throw new BidNotFound("Product not found");
+        }
+
+        if (auction.getMinPrice()>= bidsDto.bidAmount()) {
+            throw new AuctionShouldHaveHigherBidAmount("Auction should have higher bid");
+        }
+
+        if (auction.getStartDate().isAfter(Instant.now())) {
+            throw new BidNotPossible("Bidding not possible since auction has not started yet");
+        }
+
+        if (auction.getEndDate().isBefore(Instant.now())) {
+            throw new BidNotPossible("Bidding not possible since auction has ended");
+        }
+
+        if (auction.getIsCompleted() == Boolean.TRUE) {
+            throw new BidNotPossible("Bidding not possible since auction has completed");
+        }
+
+        var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
+        if (Boolean.FALSE.equals(isBidderExists)) {
+            throw new BidNotFound("Bidder not found");
+        }
     }
 }

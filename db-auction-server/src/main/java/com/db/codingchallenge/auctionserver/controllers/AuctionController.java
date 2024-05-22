@@ -3,6 +3,7 @@ package com.db.codingchallenge.auctionserver.controllers;
 import com.db.codingchallenge.auctionserver.dtos.ApiMessage;
 import com.db.codingchallenge.auctionserver.dtos.AuctionDto;
 import com.db.codingchallenge.auctionserver.dtos.BidsDto;
+import com.db.codingchallenge.auctionserver.dtos.CompletedAuctionEventResponseDto;
 import com.db.codingchallenge.auctionserver.services.AuctionService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +31,6 @@ public class AuctionController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("{auctionId}/bids")
-    public List<BidsDto> getAllBids(@PathVariable UUID auctionId) {
-        return auctionService.getAllBids(auctionId);
-    }
-
     @PostMapping
     public AuctionDto createAuction(@RequestBody AuctionDto auctionDto) {
         return auctionService.createAuction(auctionDto);
@@ -51,5 +47,17 @@ public class AuctionController {
     public ResponseEntity<ApiMessage> deleteAuction(@PathVariable UUID auctionId) {
         auctionService.deleteAuction(auctionId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("{auctionId}/bids")
+    public List<BidsDto> getAllBids(@PathVariable UUID auctionId) {
+        return auctionService.getAllBids(auctionId);
+    }
+
+    @GetMapping("{auctionId}/complete")
+    public CompletedAuctionEventResponseDto completeAuction(
+        @PathVariable UUID auctionId
+    ) {
+        return auctionService.completeAuction(auctionId);
     }
 }
