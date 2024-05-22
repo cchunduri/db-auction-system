@@ -1,6 +1,24 @@
 spring:
+  datasource:
+    url: jdbc:h2:file:./db/auction-users-db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   application:
     name: db-auction-user-service
 
 server:
   port: 8092
+
+jwt:
+  token-expiry: 3600000
+  secret-key: euI69ZmV2ASrxzaoOs+cGckcT0FDG3DDhCEWeSsekzU=
+
+logging:
+  level:
+    org.springframework: DEBUG
+    com.ditm.auctionuserservice: DEBUG
