@@ -7,7 +7,9 @@ import com.db.codingchallenge.auctionuserservice.dtos.LoginRequestDto;
 import com.db.codingchallenge.auctionuserservice.services.JwtService;
 import com.db.codingchallenge.auctionuserservice.services.UsersService;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -49,5 +51,23 @@ public class UsersController {
     @GetMapping("/all")
     public List<AuctionUserDto> getAllUsers() {
         return usersService.getAllUsers();
+    }
+
+    @GetMapping("/sellers/{sellerId}")
+    public ResponseEntity<ApiResponse> checkSellerExists(@PathVariable UUID sellerId) {
+        boolean exists = usersService.checkSellerExists(sellerId);
+        if (!exists) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(new ApiResponse("Seller Exists"));
+    }
+
+    @GetMapping("/bidders/{bidderId}")
+    public ResponseEntity<ApiResponse> checkBidderExists(@PathVariable UUID bidderId) {
+        boolean exists = usersService.checkBidderExists(bidderId);
+        if (!exists) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(new ApiResponse("Bidder Exists"));
     }
 }

@@ -34,6 +34,8 @@ public class SecurityConfig {
                 .requestMatchers("/users/all").permitAll()
                 .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/users/sellers/**").permitAll()
+                .requestMatchers("/users/bidders/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/error/**").permitAll()
                 .anyRequest().authenticated()

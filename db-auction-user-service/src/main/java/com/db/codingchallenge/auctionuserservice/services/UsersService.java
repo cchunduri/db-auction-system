@@ -8,6 +8,8 @@ import com.db.codingchallenge.auctionuserservice.exceptions.UserAlreadyExistsExc
 import com.db.codingchallenge.auctionuserservice.repositories.AuctionUserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,17 +61,30 @@ public class UsersService {
 
 
     private AuctionUserDto mapToAuctionUserDto(AuctionUser auctionUser) {
-        return new AuctionUserDto(
-            auctionUser.getFirstName(),
-            auctionUser.getLastName(),
-            auctionUser.getUsername(),
-            auctionUser.getPassword(),
-            auctionUser.getEmail(),
-            auctionUser.getRole().name(),
-            auctionUser.getCreatedAt(),
-            auctionUser.getUpdatedAt(),
-            auctionUser.isActive(),
-            AppRolesDto.valueOf(auctionUser.getRole().name().substring(5))
-        );
+        return AuctionUserDto.builder()
+                .userId(auctionUser.getUserId())
+                .firstName(auctionUser.getFirstName())
+                .lastName(auctionUser.getLastName())
+                .username(auctionUser.getUsername())
+                .password(auctionUser.getPassword())
+                .email(auctionUser.getEmail())
+                .userType(auctionUser.getRole().name())
+                .createdAt(auctionUser.getCreatedAt())
+                .updatedAt(auctionUser.getUpdatedAt())
+                .isActive(auctionUser.isActive())
+                .role(AppRolesDto.valueOf(auctionUser.getRole().name().substring(5)))
+            .build();
+    }
+
+    public boolean checkSellerExists(UUID sellerId) {
+        return isUserExists(sellerId, AppRoles.ROLE_SELLER).isPresent();
+    }
+
+    public boolean checkBidderExists(UUID bidderId) {
+        return isUserExists(bidderId, AppRoles.ROLE_BIDDER).isPresent();
+    }
+
+    private Optional<AuctionUser> isUserExists(UUID sellerId, AppRoles role) {
+        return userRepository.findByUserIdAndRole(sellerId, role);
     }
 }
