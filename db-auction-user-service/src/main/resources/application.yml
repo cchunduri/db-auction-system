@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: db-auction-user-service
+
+server:
+  port: 8092
