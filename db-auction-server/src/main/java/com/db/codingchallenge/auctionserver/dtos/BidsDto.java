@@ -5,6 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record BidsDto(
+    UUID bidId,
     UUID auctionId,
     Double bidAmount,
     UUID bidderId,

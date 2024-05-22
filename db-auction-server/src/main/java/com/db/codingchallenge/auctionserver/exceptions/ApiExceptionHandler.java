@@ -76,4 +76,26 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             request
         );
     }
+
+    @ExceptionHandler(BidderNotFound.class)
+    protected ResponseEntity<Object> handleBidderNotFound(
+        BidderNotFound ex, WebRequest request
+    ) {
+        return handleExceptionInternal(
+            ex,
+            new ApiError(ex.getMessage()),
+            new HttpHeaders(),
+            HttpStatus.NOT_FOUND,
+            request
+        );
+    }
+
+    @ExceptionHandler(SellerNotFound.class)
+    protected ResponseEntity<Object> handleSellerNotFound(
+        SellerNotFound ex, WebRequest request
+    ) {
+        return handleExceptionInternal(
+            ex, new ApiError(ex.getMessage()), new HttpHeaders(), HttpStatus.NOT_FOUND, request
+        );
+    }
 }

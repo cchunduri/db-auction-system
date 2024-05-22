@@ -1,9 +1,14 @@
 package com.db.codingchallenge.auctionserver.services;
 
+import com.db.codingchallenge.auctionserver.clients.UserServiceClient;
 import com.db.codingchallenge.auctionserver.dtos.AuctionDto;
+import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.entities.Auction;
 import com.db.codingchallenge.auctionserver.entities.Product;
+import com.db.codingchallenge.auctionserver.exceptions.BidNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.ProductNotFound;
+import com.db.codingchallenge.auctionserver.exceptions.SellerNotFound;
+import com.db.codingchallenge.auctionserver.mappers.BidMapper;
 import com.db.codingchallenge.auctionserver.repositories.AuctionRepository;
 import java.time.ZoneId;
 import java.util.List;
@@ -18,6 +23,7 @@ public class AuctionService {
 
     private final AuctionRepository auctionRepository;
     private final ProductService productService;
+    private final UserServiceClient userServiceClient;
 
     public List<AuctionDto> getAllAuctions() {
         return auctionRepository.findAll().stream()
@@ -38,6 +44,11 @@ public class AuctionService {
         var product = productService.getProductById(auctionDto.productId())
             .orElseThrow(() -> new ProductNotFound("Product not found"));
 
+        var isSellerExists = userServiceClient.checkSellerExists(auctionDto.sellerId()).block();
+        if (Boolean.FALSE.equals(isSellerExists)) {
+            throw new SellerNotFound("Seller not found");
+        }
+
         Auction auction = toEntity(auctionDto, product);
         Auction savedAuction = auctionRepository.save(auction);
         return toDto(savedAuction);
@@ -56,6 +67,12 @@ public class AuctionService {
 
     public void deleteAuction(UUID id) {
         auctionRepository.deleteById(id);
+    }
+
+    public List<BidsDto> getAllBids(UUID auctionId) {
+        return auctionRepository.findById(auctionId)
+            .map(auction -> auction.getBids().stream().map(BidMapper::toBidsDto).toList())
+            .orElseThrow(() -> new BidNotFound("No Bids exists for the give auction"));
     }
 
     public AuctionDto toDto(Auction auction) {

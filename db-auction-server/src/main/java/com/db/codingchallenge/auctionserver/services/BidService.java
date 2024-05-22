@@ -1,5 +1,6 @@
 package com.db.codingchallenge.auctionserver.services;
 
+import com.db.codingchallenge.auctionserver.clients.UserServiceClient;
 import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.entities.Auction;
 import com.db.codingchallenge.auctionserver.entities.Bid;
@@ -7,6 +8,7 @@ import com.db.codingchallenge.auctionserver.exceptions.AuctionNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.AuctionShouldHaveHigherBidAmount;
 import com.db.codingchallenge.auctionserver.exceptions.BidNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.BidNotPossible;
+import com.db.codingchallenge.auctionserver.mappers.BidMapper;
 import com.db.codingchallenge.auctionserver.repositories.BidRepository;
 import java.time.Instant;
 import java.util.List;
@@ -15,15 +17,18 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.db.codingchallenge.auctionserver.mappers.BidMapper.toBidsDto;
+
 @Service
 @AllArgsConstructor
 public class BidService {
 
     private BidRepository bidRepository;
     private AuctionService auctionService;
+    private UserServiceClient userServiceClient;
 
     public List<BidsDto> getAllBids() {
-        return bidRepository.findAll().stream().map(this::toDto).toList();
+        return bidRepository.findAll().stream().map(BidMapper::toBidsDto).toList();
     }
 
     public Optional<Bid> getBidById(UUID id) {
@@ -51,15 +56,20 @@ public class BidService {
             throw new BidNotPossible("Bidding not possible since auction has ended");
         }
 
+        var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
+        if (Boolean.FALSE.equals(isBidderExists)) {
+            throw new BidNotFound("Bidder not found");
+        }
+
         var bid = toEntity(bidsDto, auction);
-        return toDto(bidRepository.save(bid));
+        return toBidsDto(bidRepository.save(bid));
     }
 
     public BidsDto updateBid(UUID bidId, BidsDto bidsDto) {
         return bidRepository.findById(bidId)
             .map(bid -> {
                 bid.setAmount(bidsDto.bidAmount());
-                return toDto(bidRepository.save(bid));
+                return toBidsDto(bidRepository.save(bid));
             }).orElseThrow(() -> new BidNotFound("Bid not found"));
     }
 
@@ -67,22 +77,13 @@ public class BidService {
         bidRepository.deleteById(bidId);
     }
 
-    private static Bid toEntity(BidsDto bidsDto, Auction auction) {
+    public static Bid toEntity(BidsDto bidsDto, Auction auction) {
         return Bid.builder()
             .auction(auction)
             .product(auction.getProduct())
             .amount(bidsDto.bidAmount())
             .bidId(bidsDto.bidderId())
             .bidderId(bidsDto.bidderId())
-            .build();
-    }
-
-    public BidsDto toDto(Bid bid) {
-        return BidsDto.builder()
-            .auctionId(bid.getAuction().getAuctionId())
-            .bidAmount(bid.getAmount())
-            .bidderId(bid.getBidderId())
-            .productId(bid.getProduct().getProductId())
             .build();
     }
 }
