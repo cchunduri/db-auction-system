@@ -1,0 +1,11 @@
+INSERT INTO products (product_id, name, description, price, quantity) VALUES
+('2889387d-bdca-423e-bc74-15244882227b', 'Product 1', 'This is product 1', 100.00, 10),
+('5fff4aab-d2cd-40b1-a725-9544cab2f209', 'Product 2', 'This is product 2', 200.00, 20),
+('c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'Product 3', 'This is product 3', 300.00, 30),
+('d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'Product 4', 'This is product 4', 400.00, 40),
+('e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'Product 5', 'This is product 5', 500.00, 50),
+('f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'Product 6', 'This is product 6', 600.00, 60),
+('f472ec74-ad30-4a00-9222-c78f738a4da1', 'Product 7', 'This is product 7', 700.00, 70),
+('9e122476-8b42-4209-b3c7-a2e688780546', 'Product 8', 'This is product 8', 800.00, 80),
+('f85e6b26-6a30-42c0-9cda-c069add55e45', 'Product 9', 'This is product 9', 900.00, 90),
+('54bf853f-263f-4512-a40a-4bb17558f769', 'Product 10', 'This is product 10', 1000.00, 100);

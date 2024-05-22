@@ -1,5 +1,5 @@
 CREATE TABLE auction_user (
-    user_id UUID        PRIMARY KEY,
+    user_id             UUID PRIMARY KEY NOT NULL,
     first_name          VARCHAR(100) NOT NULL,
     last_name           VARCHAR(100) NOT NULL,
     username            VARCHAR(100) NOT NULL,

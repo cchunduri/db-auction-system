@@ -9,5 +9,4 @@ public class DbAuctionUserServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DbAuctionUserServiceApplication.class, args);
 	}
-
 }

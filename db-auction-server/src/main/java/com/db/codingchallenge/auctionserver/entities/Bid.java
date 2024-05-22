@@ -9,28 +9,33 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "bid")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Bid
 {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "bidId", nullable = false)
     private UUID bidId;
-
-    @Column(name = "bidAmount", nullable = false)
-    private Double bidAmount;
-
-    @Column(name = "bidderId", nullable = false)
+    private Double amount;
     private UUID bidderId;
 
     @ManyToOne
     @JoinColumn(name = "auction_id")
     private Auction auction;
 
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

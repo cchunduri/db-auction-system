@@ -5,21 +5,29 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table
 @Getter
 @Setter
-class Auction  {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Auction  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,15 +43,15 @@ class Auction  {
     private Double minPrice;
 
     @Column
-    private Double currentPrice;
+    private Double winningPrice;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date startDate;
+    private Instant startDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date endDate;
+    private Instant endDate;
 
     @Column
     private UUID sellerId;
@@ -56,4 +64,8 @@ class Auction  {
 
     @OneToMany(mappedBy = "auction")
     private List<Bid> bids;
+
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }
