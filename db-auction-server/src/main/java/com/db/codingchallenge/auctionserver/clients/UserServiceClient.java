@@ -2,7 +2,6 @@ package com.db.codingchallenge.auctionserver.clients;
 
 import com.db.codingchallenge.auctionserver.exceptions.BidderNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.SellerNotFound;
-import com.db.codingchallenge.auctionserver.properties.UserServiceProperties;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -14,12 +13,11 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class UserServiceClient {
 
-    private final UserServiceProperties userServiceProperties;
     private final WebClient webClient;
 
     public Mono<Boolean> checkSellerExists(UUID sellerId) {
         return webClient.get()
-            .uri(userServiceProperties.getUrl() + "/sellers/{sellerId}", sellerId)
+            .uri("/sellers/{sellerId}", sellerId)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new SellerNotFound("Bidder not found")))
             .bodyToMono(String.class)
@@ -29,7 +27,7 @@ public class UserServiceClient {
 
     public Mono<Boolean> checkBidderExists(UUID bidderId) {
         return webClient.get()
-            .uri(userServiceProperties.getUrl() + "/bidders/{bidderId}", bidderId)
+            .uri("/bidders/{bidderId}", bidderId)
             .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new BidderNotFound("Bidder not found")))
             .bodyToMono(String.class)

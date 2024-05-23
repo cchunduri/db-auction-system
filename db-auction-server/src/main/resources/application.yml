@@ -20,7 +20,7 @@ server:
     port: 8091
 
 user-service:
-  url: http://localhost:8092/users
+  url: http://localhost:8090/users
 
 logging:
   level:

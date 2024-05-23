@@ -69,6 +69,12 @@ public class BidService {
     }
 
     private void validateBid(BidsDto bidsDto, Auction auction) {
+
+        var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
+        if (Boolean.FALSE.equals(isBidderExists)) {
+            throw new BidNotFound("Bidder not found");
+        }
+
         if (!auction.getProduct().getProductId().equals(bidsDto.productId())) {
             throw new BidNotFound("Product not found");
         }
@@ -87,11 +93,6 @@ public class BidService {
 
         if (auction.getIsCompleted() == Boolean.TRUE) {
             throw new BidNotPossible("Bidding not possible since auction has completed");
-        }
-
-        var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
-        if (Boolean.FALSE.equals(isBidderExists)) {
-            throw new BidNotFound("Bidder not found");
         }
     }
 }

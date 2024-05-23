@@ -1,6 +1,25 @@
 spring:
   application:
     name: db-auction-gateway-service
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: users-route
+            uri: http://localhost:8092
+            predicates:
+              - Path=/users/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 server:
   port: 8090
+
+logging:
+    level:
+      org.springframework.cloud.gateway.server.mvc: TRACE
+      org.springframework.web: TRACE
