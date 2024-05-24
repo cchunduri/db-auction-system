@@ -48,6 +48,16 @@ public class MockData {
                 .productId(UUID.randomUUID())
                 .name("Test Product")
                 .description("This is a test product")
+                .quantity(10)
+                .build();
+    }
+
+    public static Product mockProduct(UUID productId) {
+        return Product.builder()
+                .productId(productId)
+                .name("Test Product")
+                .description("This is a test product")
+                .quantity(10)
                 .build();
     }
 

@@ -11,8 +11,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,14 +40,6 @@ class AuctionControllerTest {
     @MockBean
     private AuctionService auctionService;
 
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
     @Test
     void getAllAuctions() throws Exception {
         // Given
@@ -61,7 +51,7 @@ class AuctionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/auctions")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse)); // expecting a JSON array with a single empty object
+                .andExpect(content().json(expectedResponse));
     }
 
     @Test
@@ -77,7 +67,7 @@ class AuctionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/auctions/" + auctionId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse)); // expecting a JSON object
+                .andExpect(content().json(expectedResponse));
     }
 
 
@@ -93,7 +83,7 @@ class AuctionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(auctionDto)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse)); // expecting a JSON object
+                .andExpect(content().json(expectedResponse));
     }
 
 
@@ -110,7 +100,7 @@ class AuctionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(auctionDto)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse)); // expecting a JSON object
+                .andExpect(content().json(expectedResponse));
     }
 
 
@@ -139,7 +129,7 @@ class AuctionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/auctions/" + auctionId + "/bids")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse)); // expecting a JSON array with a single empty object
+                .andExpect(content().json(expectedResponse));
     }
 
 
@@ -160,7 +150,7 @@ class AuctionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/auctions/" + auctionId + "/complete")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse)); // expecting a JSON object
+                .andExpect(content().json(expectedResponse));
     }
 
     private static BidsDto mockBid(UUID auctionId) {

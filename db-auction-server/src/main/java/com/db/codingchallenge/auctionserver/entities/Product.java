@@ -15,11 +15,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "products")
 @Getter
 @Setter
+@Entity
 @Builder
+@Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {

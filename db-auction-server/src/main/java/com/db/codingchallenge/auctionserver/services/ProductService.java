@@ -9,6 +9,8 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.db.codingchallenge.auctionserver.mappers.ProductMapper.toProductEntity;
+
 @Service
 @AllArgsConstructor
 public class ProductService {
@@ -23,12 +25,8 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public Product createProduct(ProductDto productCreateDTO) {
-        Product product = new Product();
-        product.setName(productCreateDTO.name());
-        product.setDescription(productCreateDTO.description());
-        product.setPrice(productCreateDTO.price());
-        product.setQuantity(productCreateDTO.quantity());
+    public Product createProduct(ProductDto productDto) {
+        Product product = toProductEntity(productDto);
         return productRepository.save(product);
     }
 

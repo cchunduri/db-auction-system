@@ -1,5 +1,6 @@
 package com.db.codingchallenge.auctionserver.controllers;
 
+import com.db.codingchallenge.auctionserver.dtos.ApiMessage;
 import com.db.codingchallenge.auctionserver.dtos.ProductDto;
 import com.db.codingchallenge.auctionserver.entities.Product;
 import com.db.codingchallenge.auctionserver.services.ProductService;
@@ -55,7 +56,7 @@ public class ProductsController {
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable UUID productId) {
+    public ResponseEntity<ApiMessage> deleteProduct(@PathVariable UUID productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok().build();
     }

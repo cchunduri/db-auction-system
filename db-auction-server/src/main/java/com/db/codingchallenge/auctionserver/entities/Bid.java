@@ -18,8 +18,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "bid")
 @Builder
+@Table(name = "bid")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Bid
