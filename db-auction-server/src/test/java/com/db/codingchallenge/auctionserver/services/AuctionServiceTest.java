@@ -8,6 +8,7 @@ import com.db.codingchallenge.auctionserver.entities.Bid;
 import com.db.codingchallenge.auctionserver.entities.Product;
 import com.db.codingchallenge.auctionserver.exceptions.ProductNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.SellerNotFound;
+import com.db.codingchallenge.auctionserver.mappers.AuctionMapper;
 import com.db.codingchallenge.auctionserver.repositories.AuctionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.db.codingchallenge.auctionserver.mappers.AuctionMapper.toEntity;
 import static com.db.codingchallenge.auctionserver.testdata.MockData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,7 +76,7 @@ class AuctionServiceTest {
         var auctionDto = mockAuctionDto();
 
         var product = mockProduct();
-        var auction = auctionService.toEntity(auctionDto, product);
+        var auction = toEntity(auctionDto, product);
 
         when(productService.getProductById(any(UUID.class))).thenReturn(Optional.of(product));
         when(userServiceClient.checkSellerExists(any(UUID.class))).thenReturn(Mono.just(true));
@@ -91,7 +93,7 @@ class AuctionServiceTest {
         var auctionDto = mockAuctionDto();
 
         var product = mockProduct();
-        var auction = auctionService.toEntity(auctionDto, product);
+        var auction = AuctionMapper.toEntity(auctionDto, product);
 
         when(productService.getProductById(any(UUID.class))).thenReturn(Optional.of(product));
         when(userServiceClient.checkSellerExists(any(UUID.class))).thenReturn(Mono.just(false));
@@ -105,7 +107,7 @@ class AuctionServiceTest {
         var auctionDto = mockAuctionDto();
 
         var product = mockProduct();
-        var auction = auctionService.toEntity(auctionDto, product);
+        var auction = AuctionMapper.toEntity(auctionDto, product);
 
         when(productService.getProductById(any(UUID.class))).thenThrow(new ProductNotFound("Product not found"));
         when(userServiceClient.checkSellerExists(any(UUID.class))).thenReturn(Mono.just(false));
@@ -119,7 +121,7 @@ class AuctionServiceTest {
         var auctionDto = mockAuctionDto();
         var product = mockProduct();
 
-        var auction = auctionService.toEntity(auctionDto, product);
+        var auction = AuctionMapper.toEntity(auctionDto, product);
 
         when(auctionRepository.findById(any(UUID.class))).thenReturn(Optional.of(auction));
         when(auctionRepository.save(any(Auction.class))).thenReturn(auction);

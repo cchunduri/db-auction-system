@@ -19,6 +19,7 @@ public class BidsValidationHelper {
 
     public void validateBid(BidsDto bidsDto, Auction auction) {
 
+        //Since the api not planned as reactive, used blocking call to get the result
         var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
         if (Boolean.FALSE.equals(isBidderExists)) {
             throw new BidderNotFound("Bidder not found");

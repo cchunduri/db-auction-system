@@ -6,22 +6,23 @@ import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.dtos.CompletedAuctionEventResponseDto;
 import com.db.codingchallenge.auctionserver.entities.Auction;
 import com.db.codingchallenge.auctionserver.entities.Bid;
-import com.db.codingchallenge.auctionserver.entities.Product;
 import com.db.codingchallenge.auctionserver.exceptions.AuctionNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.BidNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.ProductNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.SellerNotFound;
+import com.db.codingchallenge.auctionserver.mappers.AuctionMapper;
 import com.db.codingchallenge.auctionserver.mappers.BidMapper;
 import com.db.codingchallenge.auctionserver.repositories.AuctionRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
+import static com.db.codingchallenge.auctionserver.mappers.AuctionMapper.toDto;
+import static com.db.codingchallenge.auctionserver.mappers.AuctionMapper.toEntity;
 
 @Service
 @AllArgsConstructor
@@ -33,13 +34,13 @@ public class AuctionService {
 
     public List<AuctionDto> getAllAuctions() {
         return auctionRepository.findAll().stream()
-                .map(this::toDto)
+                .map(AuctionMapper::toDto)
                 .toList();
     }
 
     public Optional<AuctionDto> getAuctionById(UUID id) {
         return auctionRepository.findById(id)
-                .map(this::toDto);
+                .map(AuctionMapper::toDto);
     }
 
     public Optional<Auction> getAuction(UUID id) {
@@ -50,6 +51,7 @@ public class AuctionService {
         var product = productService.getProductById(auctionDto.productId())
                 .orElseThrow(() -> new ProductNotFound("Product not found"));
 
+        //Since the api not planned as reactive, used blocking call to get the result
         var isSellerExists = userServiceClient.checkSellerExists(auctionDto.sellerId()).block();
         if (Boolean.FALSE.equals(isSellerExists)) {
             throw new SellerNotFound("Seller not found");
@@ -102,40 +104,5 @@ public class AuctionService {
 
     private static Optional<Bid> getMaxBid(List<Bid> existingBids) {
         return existingBids.stream().max(Comparator.comparingDouble(Bid::getAmount));
-    }
-
-    public AuctionDto toDto(Auction auction) {
-        return AuctionDto.builder()
-                .auctionId(auction.getAuctionId())
-                .name(auction.getName())
-                .description(auction.getDescription())
-                .productId(auction.getProduct().getProductId())
-                .minPrice(auction.getMinPrice())
-                .winningPrice(auction.getWinningPrice())
-                .startDate(auction.getStartDate().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .endDate(auction.getEndDate().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .sellerId(auction.getSellerId())
-                .auctionWinnerId(auction.getAuctionWinnerId())
-                .isCompleted(auction.getIsCompleted())
-                .build();
-    }
-
-    public Auction toEntity(
-            AuctionDto auctionDto,
-            Product product
-    ) {
-        return Auction.builder()
-                .auctionId(auctionDto.auctionId())
-                .name(auctionDto.name())
-                .description(auctionDto.description())
-                .product(product)
-                .minPrice(auctionDto.minPrice())
-                .winningPrice(auctionDto.winningPrice())
-                .startDate(auctionDto.startDate().atZone(ZoneId.systemDefault()).toInstant())
-                .endDate(auctionDto.endDate().atZone(ZoneId.systemDefault()).toInstant())
-                .sellerId(auctionDto.sellerId())
-                .auctionWinnerId(auctionDto.auctionWinnerId())
-                .isCompleted(auctionDto.isCompleted())
-                .build();
     }
 }

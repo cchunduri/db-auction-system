@@ -1,20 +1,15 @@
 package com.db.codingchallenge.auctionserver.controllers;
 
+import com.db.codingchallenge.auctionserver.dtos.ApiMessage;
 import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.entities.Bid;
 import com.db.codingchallenge.auctionserver.services.BidService;
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/bids")
@@ -36,8 +31,8 @@ public class BidsController {
     }
 
     @PostMapping
-    public BidsDto createBid(@RequestBody BidsDto bidCreateDTO) {
-        return bidService.createBid(bidCreateDTO);
+    public BidsDto createBid(@RequestBody BidsDto bidsDto) {
+        return bidService.createBid(bidsDto);
     }
 
     @PutMapping("/{bidId}")
@@ -46,7 +41,7 @@ public class BidsController {
     }
 
     @DeleteMapping("/{bidId}")
-    public ResponseEntity<?> deleteBid(@PathVariable UUID bidId) {
+    public ResponseEntity<ApiMessage> deleteBid(@PathVariable UUID bidId) {
         bidService.deleteBid(bidId);
         return ResponseEntity.ok().build();
     }

@@ -54,7 +54,7 @@ public class AuctionController {
         return auctionService.getAllBids(auctionId);
     }
 
-    @GetMapping("{auctionId}/complete")
+    @PostMapping("{auctionId}/complete")
     public CompletedAuctionEventResponseDto completeAuction(
         @PathVariable UUID auctionId
     ) {

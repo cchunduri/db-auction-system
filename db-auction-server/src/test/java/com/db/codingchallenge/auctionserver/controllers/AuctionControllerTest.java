@@ -5,12 +5,6 @@ import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.dtos.CompletedAuctionEventResponseDto;
 import com.db.codingchallenge.auctionserver.services.AuctionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +13,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -147,7 +146,7 @@ class AuctionControllerTest {
         String expectedResponse = objectMapper.writeValueAsString(responseDto);
 
         // Then
-        mockMvc.perform(MockMvcRequestBuilders.get("/auctions/" + auctionId + "/complete")
+        mockMvc.perform(MockMvcRequestBuilders.post("/auctions/" + auctionId + "/complete")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedResponse));

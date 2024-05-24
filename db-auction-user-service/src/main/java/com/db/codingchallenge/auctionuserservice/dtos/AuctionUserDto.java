@@ -1,8 +1,9 @@
 package com.db.codingchallenge.auctionuserservice.dtos;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.Builder;
 
 @Builder
 public record AuctionUserDto(
@@ -10,7 +11,6 @@ public record AuctionUserDto(
     String firstName,
     String lastName,
     String username,
-    String password,
     String email,
     String userType,
     LocalDateTime createdAt,

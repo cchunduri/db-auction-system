@@ -6,21 +6,19 @@ import com.db.codingchallenge.auctionuserservice.entities.AppRoles;
 import com.db.codingchallenge.auctionuserservice.entities.AuctionUser;
 import com.db.codingchallenge.auctionuserservice.exceptions.UserAlreadyExistsException;
 import com.db.codingchallenge.auctionuserservice.repositories.AuctionUserRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class UsersService {
 
     private AuctionUserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
-
 
     public void registerUser(AuctionUserDto userRegistrationRequest) {
         var existingUserAccountByUsername = userRepository.findByUsername(userRegistrationRequest.username());
@@ -28,37 +26,15 @@ public class UsersService {
             throw new UserAlreadyExistsException("Username is already exists");
         }
 
-        var user = mapper(userRegistrationRequest, passwordEncoder);
+        var user = mapper(userRegistrationRequest);
         userRepository.save(user);
     }
 
-
-    private AuctionUser mapper(AuctionUserDto userRegistrationRequest, PasswordEncoder passwordEncoder) {
-        return AuctionUser.builder()
-            .username(userRegistrationRequest.username())
-            .password(passwordEncoder.encode(userRegistrationRequest.password()))
-            .email(userRegistrationRequest.email())
-            .firstName(userRegistrationRequest.firstName())
-            .lastName(userRegistrationRequest.lastName())
-            .isActive(true)
-            .role(mapRoles(userRegistrationRequest.role()))
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
-    }
-
-
-    private AppRoles mapRoles(AppRolesDto role) {
-        return AppRoles.valueOf("ROLE_" + role.name());
-    }
-
-
     public List<AuctionUserDto> getAllUsers() {
         return userRepository.findAll().stream()
-            .map(this::mapToAuctionUserDto)
-            .toList();
+                .map(this::mapToAuctionUserDto)
+                .toList();
     }
-
 
     private AuctionUserDto mapToAuctionUserDto(AuctionUser auctionUser) {
         return AuctionUserDto.builder()
@@ -66,14 +42,13 @@ public class UsersService {
                 .firstName(auctionUser.getFirstName())
                 .lastName(auctionUser.getLastName())
                 .username(auctionUser.getUsername())
-                .password(auctionUser.getPassword())
                 .email(auctionUser.getEmail())
                 .userType(auctionUser.getRole().name())
                 .createdAt(auctionUser.getCreatedAt())
                 .updatedAt(auctionUser.getUpdatedAt())
                 .isActive(auctionUser.isActive())
                 .role(AppRolesDto.valueOf(auctionUser.getRole().name().substring(5)))
-            .build();
+                .build();
     }
 
     public boolean checkSellerExists(UUID sellerId) {
@@ -86,5 +61,22 @@ public class UsersService {
 
     private Optional<AuctionUser> isUserExists(UUID sellerId, AppRoles role) {
         return userRepository.findByUserIdAndRole(sellerId, role);
+    }
+
+    private AuctionUser mapper(AuctionUserDto userRegistrationRequest) {
+        return AuctionUser.builder()
+                .username(userRegistrationRequest.username())
+                .email(userRegistrationRequest.email())
+                .firstName(userRegistrationRequest.firstName())
+                .lastName(userRegistrationRequest.lastName())
+                .isActive(true)
+                .role(mapRoles(userRegistrationRequest.role()))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    private AppRoles mapRoles(AppRolesDto role) {
+        return AppRoles.valueOf("ROLE_" + role.name());
     }
 }
