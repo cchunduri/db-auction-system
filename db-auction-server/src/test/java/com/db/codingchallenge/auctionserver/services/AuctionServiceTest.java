@@ -4,6 +4,7 @@ import com.db.codingchallenge.auctionserver.clients.UserServiceClient;
 import com.db.codingchallenge.auctionserver.dtos.AuctionDto;
 import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.entities.Auction;
+import com.db.codingchallenge.auctionserver.entities.Bid;
 import com.db.codingchallenge.auctionserver.entities.Product;
 import com.db.codingchallenge.auctionserver.exceptions.ProductNotFound;
 import com.db.codingchallenge.auctionserver.exceptions.SellerNotFound;
@@ -15,16 +16,15 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.db.codingchallenge.auctionserver.testdata.MockData.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class AuctionServiceTest {
@@ -132,68 +132,55 @@ class AuctionServiceTest {
 
     @Test
     void testDeleteAuction() {
+        Auction auction = mockAuction();
+        UUID auctionId = auction.getAuctionId();
+        when(auctionRepository.findById(auctionId)).thenReturn(Optional.of(auction));
 
+        auctionService.deleteAuction(auctionId);
+
+        verify(auctionRepository, times(1))
+                .deleteById(auctionId);
     }
 
     @Test
     void testGetAllBids() {
+        Auction auction = mockAuction();
+        Product product = mockProduct();
 
+        List<Bid> bids = List.of(mockBidEntity(auction, product), mockBidEntity(auction, product));
+        auction.setBids(bids);
+
+        when(auctionRepository.findById(any(UUID.class))).thenReturn(Optional.of(auction));
+
+        List<BidsDto> result = auctionService.getAllBids(auction.getAuctionId());
+
+        assertFalse(result.isEmpty());
+        assertEquals(bids.size(), result.size());
+
+        assertThat(result)
+                .extracting(BidsDto::bidId)
+                .containsAnyElementsOf(
+                        bids.stream().map(Bid::getBidId).toList());
     }
 
     @Test
     void testCompleteAuction() {
 
-    }
+        Auction auction = mockAuction();
+        Product product = mockProduct();
+        Bid winningBid = mockBidEntity(auction, product, 150.0);
+        var bids = List.of(mockBidEntity(auction, product, 100.0), winningBid);
+        auction.setProduct(product);
+        auction.setBids(bids);
 
-    private Product mockProduct() {
-        return Product.builder()
-                .productId(UUID.randomUUID())
-                .name("Test Product")
-                .description("This is a test product")
-                .build();
-    }
+        when(auctionRepository.findById(any(UUID.class))).thenReturn(Optional.of(auction));
 
-    private Auction mockAuction() {
-        return Auction.builder()
-                    .auctionId(UUID.randomUUID())
-                    .name("Test Auction")
-                    .description("This is a test auction")
-                    .minPrice(100.0)
-                    .startDate(Instant.now())
-                    .endDate(Instant.now().plusSeconds(86400)) // plus 1 day
-                    .sellerId(UUID.randomUUID())
-                    .auctionWinnerId(UUID.randomUUID())
-                    .isCompleted(false)
-                    .product(mockProduct())
-                    .bids(null)
-                .build();
-    }
+        var result = auctionService.completeAuction(auction.getAuctionId());
 
-    private AuctionDto mockAuctionDto() {
-        var auctionId = UUID.randomUUID();
-        return AuctionDto.builder()
-                    .auctionId(auctionId)
-                    .name("Test Auction")
-                    .description("This is a test auction")
-                    .productId(UUID.randomUUID())
-                    .minPrice(100.0)
-                    .winningPrice(200.0)
-                    .startDate(LocalDateTime.now())
-                    .endDate(LocalDateTime.now().plusDays(1))
-                    .sellerId(UUID.randomUUID())
-                    .auctionWinnerId(UUID.randomUUID())
-                    .isCompleted(false)
-                    .bids(Collections.singletonList(mockBid(auctionId)))
-                .build();
-    }
-
-    private static BidsDto mockBid(UUID auctionId) {
-        return BidsDto.builder()
-                    .bidId(UUID.randomUUID())
-                    .auctionId(auctionId)
-                    .bidderId(UUID.randomUUID())
-                    .productId(UUID.randomUUID())
-                    .bidAmount(100.0)
-                .build();
+        assertNotNull(result);
+        assertEquals(auction.getAuctionId(), result.auctionId());
+        assertTrue(auction.getIsCompleted());
+        assertEquals(150.0, auction.getWinningPrice());
+        assertEquals(winningBid.getBidderId(), result.winningBid().bidderId());
     }
 }

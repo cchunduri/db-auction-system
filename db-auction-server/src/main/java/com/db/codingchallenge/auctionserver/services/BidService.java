@@ -1,16 +1,14 @@
 package com.db.codingchallenge.auctionserver.services;
 
-import com.db.codingchallenge.auctionserver.clients.UserServiceClient;
 import com.db.codingchallenge.auctionserver.dtos.BidsDto;
 import com.db.codingchallenge.auctionserver.entities.Auction;
 import com.db.codingchallenge.auctionserver.entities.Bid;
 import com.db.codingchallenge.auctionserver.exceptions.AuctionNotFound;
-import com.db.codingchallenge.auctionserver.exceptions.AuctionShouldHaveHigherBidAmount;
 import com.db.codingchallenge.auctionserver.exceptions.BidNotFound;
-import com.db.codingchallenge.auctionserver.exceptions.BidNotPossible;
+import com.db.codingchallenge.auctionserver.helpers.BidsValidationHelper;
 import com.db.codingchallenge.auctionserver.mappers.BidMapper;
 import com.db.codingchallenge.auctionserver.repositories.BidRepository;
-import java.time.Instant;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +23,7 @@ public class BidService {
 
     private BidRepository bidRepository;
     private AuctionService auctionService;
-    private UserServiceClient userServiceClient;
+    private BidsValidationHelper bidsValidationHelper;
 
     public List<BidsDto> getAllBids() {
         return bidRepository.findAll().stream().map(BidMapper::toBidsDto).toList();
@@ -40,7 +38,7 @@ public class BidService {
         Auction auction = auctionService.getAuction(bidsDto.auctionId())
             .orElseThrow(() -> new AuctionNotFound("Auction not found"));
 
-        validateBid(bidsDto, auction);
+        bidsValidationHelper.validateBid(bidsDto, auction);
 
         var bid = toEntity(bidsDto, auction);
         return toBidsDto(bidRepository.save(bid));
@@ -63,36 +61,8 @@ public class BidService {
             .auction(auction)
             .product(auction.getProduct())
             .amount(bidsDto.bidAmount())
-            .bidId(bidsDto.bidderId())
+            .bidId(bidsDto.bidId())
             .bidderId(bidsDto.bidderId())
             .build();
-    }
-
-    private void validateBid(BidsDto bidsDto, Auction auction) {
-
-        var isBidderExists = userServiceClient.checkBidderExists(bidsDto.bidderId()).block();
-        if (Boolean.FALSE.equals(isBidderExists)) {
-            throw new BidNotFound("Bidder not found");
-        }
-
-        if (!auction.getProduct().getProductId().equals(bidsDto.productId())) {
-            throw new BidNotFound("Product not found");
-        }
-
-        if (auction.getMinPrice()>= bidsDto.bidAmount()) {
-            throw new AuctionShouldHaveHigherBidAmount("Auction should have higher bid");
-        }
-
-        if (auction.getStartDate().isAfter(Instant.now())) {
-            throw new BidNotPossible("Bidding not possible since auction has not started yet");
-        }
-
-        if (auction.getEndDate().isBefore(Instant.now())) {
-            throw new BidNotPossible("Bidding not possible since auction has ended");
-        }
-
-        if (auction.getIsCompleted() == Boolean.TRUE) {
-            throw new BidNotPossible("Bidding not possible since auction has completed");
-        }
     }
 }
