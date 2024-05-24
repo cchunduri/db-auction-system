@@ -77,7 +77,8 @@ This is a simple auction system that allows users to create auctions and bid on 
 * Unit tests for the controller and service layers are written using JUnit and Mockito.
 
 ### Enhancements, but couldn't be done due to time constraints
-* **Integration Tests:** Comprehensive tests to validate the complete system flow
+* **Integration Tests:** Comprehensive tests to validate the complete system flow, that could add another layer of testing to the system.
+* **OpenAPI Integration:** Helps to document the APIs and generate the client libraries and data transfer objects (DTOs) for the APIs.
 * **JWT Authentication:** Improve user validation by generating and using JWT tokens instead of direct user ID checks. Authenticate users through `/login` to validate credentials and issue tokens.
 * **Resilience4j Integration:** Since we are using microservices based architecture, we use Resilience4j to create Circuit Breaker and implement fault tolerance that could save the system from cascading failures.
 * **MDC Context:** We can use MDC context to the request while it is flowing throw various services. This will help in debugging the request easily.
